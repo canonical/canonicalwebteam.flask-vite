@@ -1,0 +1,86 @@
+name: Tests
+
+on: pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: snok/install-poetry@v1.3.0
+
+    - name: Install dependencies
+      run: sudo apt update && sudo apt install -y --no-install-recommends python3-venv
+
+    - name: Make poetry use Python 3
+      run: sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+
+    - name: Build package
+      run: poetry build
+
+  lint-python:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt update && sudo apt install -y --no-install-recommends python3-setuptools
+        pip3 install flake8 black
+
+    - name: Lint Python
+      run: python3 -m flake8 canonicalwebteam tests && python3 -m black --line-length 79 --check canonicalwebteam tests
+
+  test-python:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: snok/install-poetry@v1.3.0
+
+    - name: Install dependencies
+      run: sudo apt update && sudo apt install -y --no-install-recommends python3-venv
+
+    - name: Make poetry use Python 3
+      run: sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+
+    - name: Install poetry dependencies
+      run: poetry install
+
+    - name: Test Python with Coverage
+      run: |
+        poetry run coverage run --source=. -m unittest discover tests
+        poetry run coverage xml
+
+    # - uses: codecov/codecov-action@v5
+    #   with:
+    #     token: ${{ secrets.CODECOV_TOKEN }}
+
+  check-inclusive-naming:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check inclusive naming
+        uses: canonical-web-and-design/inclusive-naming@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          fail-on-error: true
+
+  check-type-hints:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install mypy
+        run: pip install mypy
+
+      - name: Check type hints
+        run: mypy canonicalwebteam/store_api --follow-untyped-imports

@@ -1,0 +1,54 @@
+name: Publish
+
+on:
+  push:
+    branches:
+      - main
+
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v6
+      with:
+        python-version: '3.10'
+
+    - uses: snok/install-poetry@v1.3.0
+
+    - name: Build package
+      run: poetry build
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@bea5cda687c2b79989126d589ef4411bedce0195
+      with:
+        user: __token__
+        password: ${{ secrets.pypi_password }}
+
+  test-coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: snok/install-poetry@v1.3.0
+
+    - name: Install dependencies
+      run: sudo apt update && sudo apt install -y --no-install-recommends python3-venv
+
+    - name: Make poetry use Python 3
+      run: sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+
+    - name: Install poetry dependencies
+      run: poetry install
+
+    - name: Test Python with Coverage
+      run: |
+        poetry run coverage run --source=. -m unittest discover tests
+        poetry run coverage xml
+
+    # - uses: codecov/codecov-action@v5
+    #   with:
+    #     token: ${{ secrets.CODECOV_TOKEN }}
