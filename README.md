@@ -28,9 +28,15 @@ The extension parses the following values from the Flask `app.config` object:
   - `VITE_OUTDIR: str` - file system path where the Vite output is expected; the path can be absolute or relative to the Flask app's root directory
 
 ### Import
-The extension adds a new template global function named `vite_import`.
+The extension adds a new template global function named `vite_import`. To include a script or stylesheet, simply invoke this template function passing the path to the file you want to import, relative to the app's root directory.
 
-> Note: all files imported via `vite_import` must be declared as entry points in your Vite config; if this isn't the case, the extension will NOT work in production mode.
+#### Example
+To import a script whose path is `< flask app directory >/js/app/main.ts`:
+```html
+{ vite_import("js/app/main.ts") }
+```
+
+> Note: all files imported via `vite_import` must be declared as entry points in your Vite config; if this isn't the case, the Vite build command will not process the file you're trying to import, so the extension will NOT work in production mode.
 
 
 ## Minimal usage example
@@ -45,14 +51,19 @@ app.config["VITE_OUTDIR"] = "static/dist"
 
 vite = FlaskVite()
 vite.init_app(app)
+
+# ...
 ```
 
 ```html
 <!-- templates/base.html -->
 <head>
   { vite_import("path/to/source/styles.scss") }
-  { vite_import("path/to/source/file.tsx") }
 </head>
+<body>
+  <!-- ... -->
+  { vite_import("path/to/source/file.tsx") }
+</body>
 ```
 
 ## Development

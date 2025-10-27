@@ -34,7 +34,7 @@ class FlaskVite:
     def init_app(self, app: flask.Flask):
         config: Config = {
             "mode": app.config.get("VITE_MODE", "production"),
-            "port": app.config.get("VITE_PORT", 5173),
+            "port": int(app.config.get("VITE_PORT", 5173)),
             "outdir": app.config.get("VITE_OUTDIR", "static/dist"),
         }
         is_dev = "development" == config["mode"]
