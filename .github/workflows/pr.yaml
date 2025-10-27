@@ -3,8 +3,35 @@ name: Tests
 on: pull_request
 
 jobs:
+  check-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: snok/install-poetry@v1.3.0
+
+      - name: Auto-bump version (if needed)
+        run: |
+          function semver_to_number {
+            echo "$@" | awk -F. '{ printf("%d%03d%03d\n", $1, $2, $3); }';
+          }
+          # check if the commit includes changes to version in pyproject.toml
+          DIFF=$(git diff origin/main -- pyproject.toml | grep "version")
+          OLD_VER=$(echo "$DIFF" | grep -e "-version" | grep -oe "[0-9.]*")
+          NEW_VER=$(echo "$DIFF" | grep -e "+version" | grep -oe "[0-9.]*")
+          if [ $(semver_to_number $OLD_VER) -ge $(semver_to_number $NEW_VER) ]; then
+            # version wasn't bumped in the PR, so we need to bump it here
+            poetry version minor
+            # commit the change
+            git add pyproject.toml
+            git commit -m "Bump version to $(poetry version -s)"
+          else
+            echo "PR already bumps version to $NEW_VER"
+          fi
+
   build:
     runs-on: ubuntu-latest
+    needs: check-version
 
     steps:
     - uses: actions/checkout@v4
@@ -21,6 +48,7 @@ jobs:
 
   lint-python:
     runs-on: ubuntu-latest
+    needs: check-version
 
     steps:
     - uses: actions/checkout@v4
@@ -35,6 +63,7 @@ jobs:
 
   test-python:
     runs-on: ubuntu-latest
+    needs: check-version
 
     steps:
     - uses: actions/checkout@v4
@@ -60,6 +89,7 @@ jobs:
 
   check-inclusive-naming:
     runs-on: ubuntu-latest
+    needs: check-version
 
     steps:
       - name: Checkout
@@ -74,6 +104,7 @@ jobs:
 
   check-type-hints:
     runs-on: ubuntu-latest
+    needs: check-version
 
     steps:
       - name: Checkout
