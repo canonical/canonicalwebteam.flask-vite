@@ -1,29 +1,29 @@
 [project]
-name = 'canonicalwebteam.flask-vite'
-version = '0.1.0'
-description = 'A Flask extension that integrates with Vite'
-authors = [{ name = 'Canonical Web Team', email = 'webteam@canonical.com' }]
-license = 'LGPL-3.0'
-readme = 'README.md'
+name = "canonicalwebteam.flask-vite"
+version = "0.2.0"
+description = "A Flask extension that integrates with Vite"
+authors = [{ name = "Canonical Web Team", email = "webteam@canonical.com" }]
+license = "LGPL-3.0"
+readme = "README.md"
 
 [project.urls]
-Homepage = 'https://github.com/canonical/canonicalwebteam.flask-vite'
-Issues = 'https://github.com/canonical/canonicalwebteam.flask-vite/issues'
+Homepage = "https://github.com/canonical/canonicalwebteam.flask-vite"
+Issues = "https://github.com/canonical/canonicalwebteam.flask-vite/issues"
 
 [build-system]
-requires = ['poetry.core>=1.3']
-build-backend = 'poetry.core.masonry.api'
+requires = ["poetry.core>=1.3"]
+build-backend = "poetry.core.masonry.api"
 
 [[tool.poetry.packages]]
-include = 'canonicalwebteam'
+include = "canonicalwebteam"
 
 [tool.poetry.dependencies]
-python = '^3.10'
-flask = '^2.3'
+python = "^3.10"
+flask = "^2.3"
 
 [tool.poetry.group.dev.dependencies]
-vcrpy-unittest = '^0.1.7'
-mypy = '^1.14.1'
-coverage = '^7.0'
-black = '^25.0.0'
-flake8 = '^7.0.0'
+vcrpy-unittest = "^0.1.7"
+mypy = "^1.14.1"
+coverage = "^7.0"
+black = "^25.0.0"
+flake8 = "^7.0.0"
