@@ -8,72 +8,61 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: snok/install-poetry@v1.3.0
+        with:
+          fetch-depth: 0
 
-      - name: Auto-bump version (if needed)
+      - name: Check version
         run: |
+          # check if the commit includes changes to version in pyproject.toml
+          DIFF=$(git diff origin/main -- pyproject.toml | grep "version")
+          CUR_VER=$(echo "$DIFF" | grep -e "-version" | grep -oe "[0-9.]*")
+          NEW_VER=$(echo "$DIFF" | grep -e "+version" | grep -oe "[0-9.]*")
+          echo "Current version $CUR_VER, new version $NEW_VER"
+
           function semver_to_number {
             echo "$@" | awk -F. '{ printf("%d%03d%03d\n", $1, $2, $3); }';
           }
-          # check if the commit includes changes to version in pyproject.toml
-          DIFF=$(git diff origin/main -- pyproject.toml | grep "version")
-          OLD_VER=$(echo "$DIFF" | grep -e "-version" | grep -oe "[0-9.]*")
-          NEW_VER=$(echo "$DIFF" | grep -e "+version" | grep -oe "[0-9.]*")
-          if [ $(semver_to_number $OLD_VER) -ge $(semver_to_number $NEW_VER) ]; then
-            # version wasn't bumped in the PR, so we need to bump it here
-            poetry version minor
-            # commit the change
-            git add pyproject.toml
-            git commit -m "Bump version to $(poetry version -s)"
-          else
-            echo "PR already bumps version to $NEW_VER"
+          if [ $(semver_to_number $CUR_VER) -ge $(semver_to_number $NEW_VER) ]; then
+            echo -e "::error::Project version in \`pyproject.toml\` is the same as the \
+              current released version; bump version before merging into main." && \
+            echo "Use \`poetry version <type>\` and commit the change to this branch." && \
+            exit 1
           fi
 
   build:
     runs-on: ubuntu-latest
-    needs: check-version
 
     steps:
     - uses: actions/checkout@v4
     - uses: snok/install-poetry@v1.3.0
 
-    - name: Install dependencies
-      run: sudo apt update && sudo apt install -y --no-install-recommends python3-venv
-
-    - name: Make poetry use Python 3
-      run: sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+    - name: Install poetry dependencies
+      run: poetry install
 
     - name: Build package
       run: poetry build
 
   lint-python:
     runs-on: ubuntu-latest
-    needs: check-version
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Install dependencies
-      run: |
-        sudo apt update && sudo apt install -y --no-install-recommends python3-setuptools
-        pip3 install flake8 black
-
-    - name: Lint Python
-      run: python3 -m flake8 canonicalwebteam tests && python3 -m black --line-length 79 --check canonicalwebteam tests
-
-  test-python:
-    runs-on: ubuntu-latest
-    needs: check-version
 
     steps:
     - uses: actions/checkout@v4
     - uses: snok/install-poetry@v1.3.0
 
-    - name: Install dependencies
-      run: sudo apt update && sudo apt install -y --no-install-recommends python3-venv
+    - name: Install poetry dependencies
+      run: poetry install
 
-    - name: Make poetry use Python 3
-      run: sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+    - name: Lint Python
+      run: |
+        poetry run flake8 canonicalwebteam tests && \
+        poetry run black --line-length 79 --check canonicalwebteam tests
+
+  test-python:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: snok/install-poetry@v1.3.0
 
     - name: Install poetry dependencies
       run: poetry install
@@ -89,11 +78,9 @@ jobs:
 
   check-inclusive-naming:
     runs-on: ubuntu-latest
-    needs: check-version
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Check inclusive naming
         uses: canonical-web-and-design/inclusive-naming@main
@@ -104,14 +91,13 @@ jobs:
 
   check-type-hints:
     runs-on: ubuntu-latest
-    needs: check-version
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: snok/install-poetry@v1.3.0
 
-      - name: Install mypy
-        run: pip install mypy
+      - name: Install poetry dependencies
+        run: poetry install
 
       - name: Check type hints
-        run: mypy canonicalwebteam/store_api --follow-untyped-imports
+        run: poetry run mypy canonicalwebteam/flask_vite --follow-untyped-imports
