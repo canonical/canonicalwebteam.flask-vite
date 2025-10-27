@@ -1,9 +1,5 @@
 from unittest import TestCase
-import json
-from shutil import rmtree
-from typing import cast
 from urllib.parse import urlparse
-from pathlib import Path
 
 from canonicalwebteam.flask_vite.impl import (
     DevViteIntegration,

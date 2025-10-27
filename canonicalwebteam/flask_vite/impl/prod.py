@@ -1,6 +1,6 @@
 from os import path
 import json
-from typing import List, Set
+from typing import List, Set, Optional, cast
 from functools import cache
 
 from ..utils import EXTENSION_NAME
@@ -16,7 +16,7 @@ from ..exceptions import (
 class ProdViteIntegration(_AbstractViteIntegration):
     BUILD_MANIFEST = ".vite/manifest.json"
     # we cache the manifest contents in a static attribute
-    manifest: Manifest = None
+    manifest: Optional[Manifest] = None
 
     def __init__(self, config: Config):
         self.outdir = config["outdir"]
@@ -67,7 +67,8 @@ class ProdViteIntegration(_AbstractViteIntegration):
         chunks = self._recursive_get_chunks(asset_name)
         files = []
         for chunk in chunks:
-            for file in chunk.get("css", []):
+            css_files = cast(List[str], chunk.get("css", []))
+            for file in css_files:
                 files.append(path.join(self.outdir, file))
 
         self._check_all_files_exist(files)
@@ -78,6 +79,7 @@ class ProdViteIntegration(_AbstractViteIntegration):
         return urls
 
     def _get_asset(self, asset_name: str) -> ManifestChunk:
+        assert ProdViteIntegration.manifest is not None
         asset_chunk = ProdViteIntegration.manifest.get(asset_name)
         if not asset_chunk:
             raise ManifestContentException(
@@ -107,7 +109,9 @@ class ProdViteIntegration(_AbstractViteIntegration):
             chunk: ManifestChunk,
         ) -> List[ManifestChunk]:
             chunks: List[ManifestChunk] = []
-            for file in chunk.get("imports", []):
+            imports = cast(List[str], chunk.get("imports", []))
+            for file in imports:
+                assert ProdViteIntegration.manifest is not None
                 importee = ProdViteIntegration.manifest[file]
                 if file in seen:
                     continue

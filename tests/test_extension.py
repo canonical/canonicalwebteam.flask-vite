@@ -15,7 +15,7 @@ class TestsDevViteIntegration(TestCase):
 
         @self.app.route("/")
         def index():
-            return f"""
+            return """
             <!doctype html>
             <html>
                 <head></head>
@@ -33,8 +33,9 @@ class TestsDevViteIntegration(TestCase):
     def test_extension_init(self):
         self.assertEqual(self.app.config.get("VITE_MODE"), "development")
         self.assertEqual(self.app.config.get("VITE_PORT"), MOCK_CONFIG["port"])
-        self.assertEqual(self.app.config.get(
-            "VITE_OUTDIR"), MOCK_CONFIG["outdir"])
+        self.assertEqual(
+            self.app.config.get("VITE_OUTDIR"), MOCK_CONFIG["outdir"]
+        )
 
     def test_dev_tools(self):
         port = self.app.config.get("VITE_PORT")

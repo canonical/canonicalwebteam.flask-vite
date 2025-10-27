@@ -2,7 +2,6 @@ from unittest import TestCase
 import json
 from shutil import rmtree
 from typing import cast
-from urllib.parse import urlparse
 from pathlib import Path
 
 import canonicalwebteam.flask_vite.exceptions as vite_exceptions
@@ -13,7 +12,7 @@ from tests.mocks import (
     MOCK_CONFIG,
     MOCK_MANIFEST,
     MOCK_ASSET_PATH,
-    MOCK_SCSS_PATH
+    MOCK_SCSS_PATH,
 )
 
 

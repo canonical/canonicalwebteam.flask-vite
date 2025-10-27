@@ -5,6 +5,7 @@ from urllib.parse import urljoin
 from typing import Union
 
 from .utils import EXTENSION_NAME, staticproperty
+from .types import Config
 from .exceptions import ExtensionNotInitialized
 from .impl import (
     DevViteIntegration,
@@ -21,8 +22,8 @@ class FlaskVite:
         if app:
             self.init_app(app)
 
-    @staticproperty
-    def instance() -> Union[DevViteIntegration, ProdViteIntegration]:
+    @staticproperty  # type: ignore[arg-type]
+    def instance() -> Union[DevViteIntegration, ProdViteIntegration, None]:
         try:
             return flask.current_app.extensions[EXTENSION_NAME]
         except KeyError:
@@ -31,7 +32,7 @@ class FlaskVite:
             )
 
     def init_app(self, app: flask.Flask):
-        config = {
+        config: Config = {
             "mode": app.config.get("VITE_MODE", "production"),
             "port": app.config.get("VITE_PORT", 5173),
             "outdir": app.config.get("VITE_OUTDIR", "static/dist"),
@@ -111,6 +112,11 @@ def _inject_vite_dev_tools(res: flask.Response):
     Patch text/html responses by injecting the <script> tags for Vite's dev
     server tools before closing the <head> tag
     """
+
+    if not res.mimetype:
+        # no idea what the response type is, send it unchanged
+        return res
+
     if "text/html" not in res.mimetype:
         # response is not an HTML page, no need for Vite scripts
         return res
