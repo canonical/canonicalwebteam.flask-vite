@@ -1,6 +1,6 @@
 [project]
 name = "canonicalwebteam.flask-vite"
-version = "0.2.2"
+version = "0.3.0"
 description = "A Flask extension that integrates with Vite"
 authors = [{ name = "Canonical Web Team", email = "webteam@canonical.com" }]
 license = "LGPL-3.0"

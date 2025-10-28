@@ -18,6 +18,8 @@ class FlaskVite:
     Flask extension that implements the Vite integration
     """
 
+    config: Config
+
     def __init__(self, app: flask.Flask | None = None):
         if app:
             self.init_app(app)
@@ -32,16 +34,17 @@ class FlaskVite:
             )
 
     def init_app(self, app: flask.Flask):
-        config: Config = {
+        FlaskVite.config: Config = {
             "mode": app.config.get("VITE_MODE", "production"),
             "port": int(app.config.get("VITE_PORT", 5173)),
             "outdir": app.config.get("VITE_OUTDIR", "static/dist"),
+            "react": bool(app.config.get("VITE_REACT", False)),
         }
-        is_dev = "development" == config["mode"]
+        is_dev = "development" == FlaskVite.config["mode"]
         ViteIntegration = DevViteIntegration if is_dev else ProdViteIntegration
 
         if not app.extensions.get(EXTENSION_NAME):
-            app.extensions[EXTENSION_NAME] = ViteIntegration(config)
+            app.extensions[EXTENSION_NAME] = ViteIntegration(FlaskVite.config)
 
         app.template_global("vite_import")(vite_import)
 
@@ -127,7 +130,7 @@ def _inject_vite_dev_tools(res: flask.Response):
         return res
 
     # build the dev tools scripts string
-    port = flask.current_app.config.get("VITE_PORT", 5173)
+    port = FlaskVite.config.get("VITE_PORT", 5173)
     baseurl = f"http://localhost:{port}/"
     dev_tools = f"""
     <!-- {EXTENSION_NAME}: start Vite dev tools -->
@@ -135,15 +138,22 @@ def _inject_vite_dev_tools(res: flask.Response):
         type="module"
         src="{urljoin(baseurl, "@vite/client")}">
     </script>
-    <script type="module">
-        import RefreshRuntime from "{urljoin(baseurl, "@react-refresh")}";
-        RefreshRuntime.injectIntoGlobalHook(window);
-        window.$RefreshReg$ = () => {{}};
-        window.$RefreshSig$ = () => (type) => type;
-        window.__vite_plugin_react_preamble_installed__ = true;
-    </script>
     <!-- {EXTENSION_NAME}: end Vite dev tools -->
     """
+
+    react = FlaskVite.config.get("VITE_REACT", False)
+    if react:
+        dev_tools += f"""
+        <!-- {EXTENSION_NAME}: start React dev tools -->
+        <script type="module">
+            import RefreshRuntime from "{urljoin(baseurl, "@react-refresh")}";
+            RefreshRuntime.injectIntoGlobalHook(window);
+            window.$RefreshReg$ = () => {{}};
+            window.$RefreshSig$ = () => (type) => type;
+            window.__vite_plugin_react_preamble_installed__ = true;
+        </script>
+        <!-- {EXTENSION_NAME}: end React dev tools -->
+        """
 
     # inject the dev tools' scripts at the end of the <head> tag
     body = body.replace("</head>", f"{dev_tools}\n</head>")
