@@ -16,17 +16,20 @@ class TestsDevViteIntegration(TestCase):
 
     def tests_get_asset_url(self):
         url = self.vite.get_asset_url(MOCK_ASSET_PATH)
-        assert MOCK_ASSET_PATH in url
+        self.assertIn(MOCK_ASSET_PATH, url)
+
         parsed = urlparse(url)
-        assert parsed.scheme == "http"
-        assert parsed.netloc.startswith("localhost:")
-        assert parsed.path == f"/{MOCK_ASSET_PATH}"
-        assert parsed.params == ""
-        assert parsed.query == ""
-        assert parsed.fragment == ""
+        self.assertEqual(parsed.scheme, "http")
+        self.assertTrue(parsed.netloc.startswith("localhost:"))
+        self.assertEqual(parsed.path, f"/{MOCK_ASSET_PATH}")
+        self.assertEqual(parsed.params, "")
+        self.assertEqual(parsed.query, "")
+        self.assertEqual(parsed.fragment, "")
 
     def tests_get_imported_chunks(self):
-        assert len(self.vite.get_imported_chunks(MOCK_ASSET_PATH)) == 0
+        self.assertEqual(
+            len(self.vite.get_imported_chunks(MOCK_ASSET_PATH)), 0
+        )
 
     def tests_get_imported_css(self):
-        assert len(self.vite.get_imported_css(MOCK_ASSET_PATH)) == 0
+        self.assertEqual(len(self.vite.get_imported_css(MOCK_ASSET_PATH)), 0)
