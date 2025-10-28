@@ -54,33 +54,26 @@ To import a script whose path is `< flask app directory >/js/app/main.ts`:
 ## Minimal usage example
 ```python
 # app.py
-app = Flask(__name__)
 
+# ...
 app.config["VITE_MODE"] = "development" if app.debug else "production"
-app.config["VITE_PORT"] = 9999
-app.config["VITE_OUTDIR"] = "static/dist"
 
-vite = FlaskVite()
-vite.init_app(app)
+FlaskVite(app)
+
+#...
 ```
 
 ```html
-<!-- templates/base.html -->
+<!-- templates/index.html -->
 <head>
-  <!-- generates a <link rel="stylesheet" ...> -->
   { vite_import("path/to/source/styles.scss") }
 </head>
 <body>
-  <!-- generates a <script type="module" ...> for the entry point  -->
-    { vite_import("path/to/source/file.tsx") }
-  <!--
-    in prod mode, it also generates <rel rel="modulepreload" ...>
-    for dependencies, and <link rel="stylesheet" ...> for all the style
-    dependencies of the script
-  -->
+  { vite_import("path/to/source/file.tsx") }
 </body>
 ```
 
+For a more fleshed-out example check the `example` directory.
 
 ## Development
 The package leverages [poetry](https://poetry.eustace.io/) for dependency management.

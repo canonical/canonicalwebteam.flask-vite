@@ -1,0 +1,18 @@
+{
+  "name": "flask-vite-example",
+  "version": "1.0.0",
+  "description": "A simple example for integrating a Flask app with Vite",
+  "scripts": {
+    "dev": "concurrently --raw 'vite' 'python -m flask --debug run'",
+    "build": "vite build",
+    "start": "npm run build && python -m flask run"
+  },
+  "author": "canonicalwebteam",
+  "license": "LGPL-3.0-or-later",
+  "dependencies": {
+    "concurrently": "^9.2.1",
+    "sass-embedded": "^1.93.2",
+    "typescript": "^5.9.3",
+    "vite": "^7.1.12"
+  }
+}
