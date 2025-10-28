@@ -5,6 +5,7 @@ class Config(TypedDict):
     mode: Literal["development", "production"]
     port: int
     outdir: str
+    react: bool
 
 
 class ManifestChunk(TypedDict):

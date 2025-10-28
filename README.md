@@ -29,6 +29,7 @@ The extension reads the following values from the Flask `app.config` object:
   - `VITE_MODE: "development" | "production"` - type of environment in which the Vite integration will run. Defaults to `"production"`.
   - `VITE_PORT: int` - port where Vite's dev server is running. Defaults to `5173`.
   - `VITE_OUTDIR: str` - file system path where the Vite output is expected; the path can be absolute or relative to the Flask app's root directory. Defaults to `"static/dist"`.
+  - `VITE_REACT: bool` - only needed for React projects; set to `True` to inject React HMR dev tools in dev mode. Defaults to `False`.
 
 > Note: the extension does NOT manage the state of the Vite dev server nor produce the static builds, you are responsible for running the appropriate Vite commands *before* initializing the extension.
 
