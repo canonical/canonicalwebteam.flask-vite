@@ -4,10 +4,10 @@ from os import path
 from urllib.parse import urljoin
 from typing import Union
 
-from .utils import EXTENSION_NAME, staticproperty
-from .types import Config
-from .exceptions import ExtensionNotInitialized
-from .impl import (
+from canonicalwebteam.flask_vite.utils import EXTENSION_NAME, staticproperty
+from canonicalwebteam.flask_vite.types import Config
+from canonicalwebteam.flask_vite.exceptions import ExtensionNotInitialized
+from canonicalwebteam.flask_vite.impl import (
     DevViteIntegration,
     ProdViteIntegration,
 )

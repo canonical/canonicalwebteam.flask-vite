@@ -1,8 +1,8 @@
 from typing import List
 from urllib.parse import urljoin
 
-from ..types import Config
-from .base import _AbstractViteIntegration
+from canonicalwebteam.flask_vite.types import Config
+from canonicalwebteam.flask_vite.impl.base import _AbstractViteIntegration
 
 
 class DevViteIntegration(_AbstractViteIntegration):

@@ -3,10 +3,10 @@ import json
 from typing import List, Set, Optional, cast
 from functools import cache
 
-from ..utils import EXTENSION_NAME
-from ..types import Config, Manifest, ManifestChunk
-from .base import _AbstractViteIntegration
-from ..exceptions import (
+from canonicalwebteam.flask_vite.utils import EXTENSION_NAME
+from canonicalwebteam.flask_vite.types import Config, Manifest, ManifestChunk
+from canonicalwebteam.flask_vite.impl.base import _AbstractViteIntegration
+from canonicalwebteam.flask_vite.exceptions import (
     AssetPathException,
     ManifestContentException,
     ManifestPathException,
