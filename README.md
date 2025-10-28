@@ -21,13 +21,25 @@ To install this extension as a requirement in your project, you can use PIP:
 pip install canonicalwebteam.flask-vite
 ```
 
-### Configure
-The extension parses the following values from the Flask `app.config` object:
-  - `VITE_MODE: "development" | "production"` - type of environment in which the Vite integration will run
-  - `VITE_PORT: int` - port where Vite's dev server is running
-  - `VITE_OUTDIR: str` - file system path where the Vite output is expected; the path can be absolute or relative to the Flask app's root directory
+### Update your Vite configuration
+Set `build.manifest` to `true` in your Vite config.
 
-### Import
+### Configure
+The extension reads the following values from the Flask `app.config` object:
+  - `VITE_MODE: "development" | "production"` - type of environment in which the Vite integration will run. Defaults to `"production"`.
+  - `VITE_PORT: int` - port where Vite's dev server is running. Defaults to `5173`.
+  - `VITE_OUTDIR: str` - file system path where the Vite output is expected; the path can be absolute or relative to the Flask app's root directory. Defaults to `"static/dist"`.
+
+> Note: the extension does NOT manage the state of the Vite dev server nor produce the static builds, you are responsible for running the appropriate Vite commands *before* initializing the extension.
+
+### Initialize
+```python
+from canonicalwebteam.flask_vite import FlaskVite
+vite = FlaskVite()
+vite.init_app(app)
+```
+
+### Import resources
 The extension adds a new template global function named `vite_import`. To include a script or stylesheet, simply invoke this template function passing the path to the file you want to import, relative to the app's root directory.
 
 #### Example
@@ -36,14 +48,13 @@ To import a script whose path is `< flask app directory >/js/app/main.ts`:
 { vite_import("js/app/main.ts") }
 ```
 
-> Note: all files imported via `vite_import` must be declared as entry points in your Vite config; if this isn't the case, the Vite build command will not process the file you're trying to import, so the extension will NOT work in production mode.
+> Note: when importing a file via `vite_import`, make sure it's also declared as an entry point in your Vite config (under `build.rollupOptions.input`); if this isn't the case, **the import will break in production mode**. This is because Vite's build won't contain the file you're trying to import, so `vite_import` will throw a `ManifestContentException` when attempting to resolve the filesystem path.
 
 
 ## Minimal usage example
-
 ```python
 # app.py
-app = Flask()
+app = Flask(__name__)
 
 app.config["VITE_MODE"] = "development" if app.debug else "production"
 app.config["VITE_PORT"] = 9999
@@ -51,23 +62,27 @@ app.config["VITE_OUTDIR"] = "static/dist"
 
 vite = FlaskVite()
 vite.init_app(app)
-
-# ...
 ```
 
 ```html
 <!-- templates/base.html -->
 <head>
+  <!-- generates a <link rel="stylesheet" ...> -->
   { vite_import("path/to/source/styles.scss") }
 </head>
 <body>
-  <!-- ... -->
-  { vite_import("path/to/source/file.tsx") }
+  <!-- generates a <script type="module" ...> for the entry point  -->
+    { vite_import("path/to/source/file.tsx") }
+  <!--
+    in prod mode, it also generates <rel rel="modulepreload" ...>
+    for dependencies, and <link rel="stylesheet" ...> for all the style
+    dependencies of the script
+  -->
 </body>
 ```
 
-## Development
 
+## Development
 The package leverages [poetry](https://poetry.eustace.io/) for dependency management.
 
 To set up the virtual env and install dependencies, run:
@@ -75,8 +90,8 @@ To set up the virtual env and install dependencies, run:
 poetry install
 ```
 
-## Testing
 
+## Testing
 Unit tests can be run using:
 ```bash
 poetry run python3 -m unittest discover tests
