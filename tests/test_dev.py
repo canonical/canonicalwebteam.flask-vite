@@ -27,8 +27,9 @@ class TestsDevViteIntegration(TestCase):
         self.assertEqual(parsed.fragment, "")
 
     def tests_get_imported_chunks(self):
-        self.assertEqual(len(self.vite.get_imported_chunks(MOCK_ASSET_PATH)), 0)
+        self.assertEqual(
+            len(self.vite.get_imported_chunks(MOCK_ASSET_PATH)), 0
+        )
 
     def tests_get_imported_css(self):
         self.assertEqual(len(self.vite.get_imported_css(MOCK_ASSET_PATH)), 0)
-
