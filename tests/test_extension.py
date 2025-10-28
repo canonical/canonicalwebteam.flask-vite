@@ -9,7 +9,7 @@ from tests.mocks import (
 )
 
 
-class TestsDevViteIntegration(TestCase):
+class TestsExtension(TestCase):
     def setUp(self):
         self.app = flask.Flask(__name__)
 
@@ -38,10 +38,10 @@ class TestsDevViteIntegration(TestCase):
         )
 
     def test_dev_tools(self):
-        port = self.app.config.get("VITE_PORT")
         response = self.client.get("/")
         self.assertEqual(response.status_code, 200)
 
         body = response.get_data(as_text=True)
         self.assertGreater(len(body), 0)
-        self.assertIn(f"http://localhost:{port}/@vite/client", body)
+        self.assertIn(
+            f'http://localhost:{MOCK_CONFIG["port"]}/@vite/client', body)

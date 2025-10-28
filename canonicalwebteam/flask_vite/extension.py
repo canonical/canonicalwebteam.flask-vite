@@ -34,7 +34,7 @@ class FlaskVite:
             )
 
     def init_app(self, app: flask.Flask):
-        FlaskVite.config: Config = {
+        FlaskVite.config = {
             "mode": app.config.get("VITE_MODE", "production"),
             "port": int(app.config.get("VITE_PORT", 5173)),
             "outdir": app.config.get("VITE_OUTDIR", "static/dist"),
@@ -130,7 +130,7 @@ def _inject_vite_dev_tools(res: flask.Response):
         return res
 
     # build the dev tools scripts string
-    port = FlaskVite.config.get("VITE_PORT", 5173)
+    port = FlaskVite.config["port"]
     baseurl = f"http://localhost:{port}/"
     dev_tools = f"""
     <!-- {EXTENSION_NAME}: start Vite dev tools -->
@@ -141,7 +141,7 @@ def _inject_vite_dev_tools(res: flask.Response):
     <!-- {EXTENSION_NAME}: end Vite dev tools -->
     """
 
-    react = FlaskVite.config.get("VITE_REACT", False)
+    react = FlaskVite.config["react"]
     if react:
         dev_tools += f"""
         <!-- {EXTENSION_NAME}: start React dev tools -->
