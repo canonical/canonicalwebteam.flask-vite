@@ -44,4 +44,5 @@ class TestsExtension(TestCase):
         body = response.get_data(as_text=True)
         self.assertGreater(len(body), 0)
         self.assertIn(
-            f'http://localhost:{MOCK_CONFIG["port"]}/@vite/client', body)
+            f'http://localhost:{MOCK_CONFIG["port"]}/@vite/client', body
+        )
