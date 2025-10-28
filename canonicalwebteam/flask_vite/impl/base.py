@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import List
 
-from ..types import Config
+from canonicalwebteam.flask_vite.types import Config
 
 
 class _AbstractViteIntegration:
