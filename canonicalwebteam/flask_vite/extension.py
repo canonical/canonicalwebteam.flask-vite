@@ -59,7 +59,6 @@ def _csp_nonce():
     # check if flask_talisman is in use
     nonce_fn = FlaskVite.app.jinja_env.globals.get('csp_nonce')
     if nonce_fn:
-        print("Talisman is enabled")
         return f'nonce="{nonce_fn()}"'
     return ""
 
