@@ -1,6 +1,6 @@
 [project]
 name = "canonicalwebteam.flask-vite"
-version = "0.3.2"
+version = "0.4.0"
 description = "A Flask extension that integrates with Vite"
 authors = [{ name = "Canonical Web Team", email = "webteam@canonical.com" }]
 license = "LGPL-3.0"
@@ -27,3 +27,4 @@ mypy = "^1.14.1"
 coverage = "^7.0"
 black = "^25.0.0"
 flake8 = "^7.0.0"
+flask-talisman = "^1.1.0"

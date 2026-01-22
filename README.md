@@ -11,6 +11,7 @@ A Flask extension that integrates with Vite, enabling use of Vite's dev server a
 - supports all Vite-compatible stylesheet languages
 - hot reloading in development mode
 - `modulepreload` hints for JS chunks in production mode
+- supports flask-talisman by injecting `nonce` attributes automatically
 
 
 ## How to use the extension
