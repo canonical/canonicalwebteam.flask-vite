@@ -57,7 +57,7 @@ class FlaskVite:
 
 def _csp_nonce():
     # check if flask_talisman is in use
-    nonce_fn = FlaskVite.app.jinja_env.globals.get('csp_nonce')
+    nonce_fn = FlaskVite.app.jinja_env.globals.get("csp_nonce")
     if nonce_fn:
         return f'nonce="{nonce_fn()}"'
     return ""
@@ -86,23 +86,30 @@ def vite_import(entrypoint: str):
 
 def _stylesheet_import(entrypoint):
     entry_url = FlaskVite.instance.get_asset_url(entrypoint)
-    return Markup(f'<link rel="stylesheet" href="{entry_url}" {_csp_nonce()} />')
+    return Markup(
+        f'<link rel="stylesheet" href="{entry_url}" {_csp_nonce()} />'
+    )
 
 
 def _script_import(entrypoint):
     entry_url = FlaskVite.instance.get_asset_url(entrypoint)
 
-    entry_script = [f'<script type="module" src="{entry_url}" {_csp_nonce()}></script>']
+    entry_script = [
+        f'<script type="module" src="{entry_url}" {_csp_nonce()}></script>'
+    ]
 
     # a script might import stylesheets, which are treated as a dependency
     css_urls = FlaskVite.instance.get_imported_css(entrypoint)
-    css_scripts = [f'<link rel="stylesheet" href="{c}" {_csp_nonce()}/>' for c in css_urls]
+    css_scripts = [
+        f'<link rel="stylesheet" href="{c}" {_csp_nonce()}/>' for c in css_urls
+    ]
 
     # build the dependency tree of the imported script, so dependencies from
     # other modules can be fetched early, using `modulepreload` hints
     chunks_urls = FlaskVite.instance.get_imported_chunks(entrypoint)
     chunks_scripts = [
-        f'<link rel="modulepreload" href="{c}" {_csp_nonce()}/>' for c in chunks_urls
+        f'<link rel="modulepreload" href="{c}" {_csp_nonce()}/>'
+        for c in chunks_urls
     ]
 
     return Markup("".join(entry_script + chunks_scripts + css_scripts))
