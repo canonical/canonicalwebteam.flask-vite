@@ -18,6 +18,7 @@ class FlaskVite:
     Flask extension that implements the Vite integration
     """
 
+    app: flask.Flask
     config: Config
 
     def __init__(self, app: flask.Flask | None = None):
@@ -34,6 +35,7 @@ class FlaskVite:
             )
 
     def init_app(self, app: flask.Flask):
+        FlaskVite.app = app
         FlaskVite.config = {
             "mode": app.config.get("VITE_MODE", "production"),
             "port": int(app.config.get("VITE_PORT", 5173)),
@@ -51,6 +53,14 @@ class FlaskVite:
         if is_dev:
             # add an after request handler to inject dev tools scripts
             app.after_request(_inject_vite_dev_tools)
+
+
+def _csp_nonce():
+    # Check if nonce has been set
+    nonce = getattr(flask.request, "CSP_NONCE", "")
+    if nonce:
+        return f'nonce="{nonce}"'
+    return ""
 
 
 def vite_import(entrypoint: str):
@@ -76,23 +86,31 @@ def vite_import(entrypoint: str):
 
 def _stylesheet_import(entrypoint):
     entry_url = FlaskVite.instance.get_asset_url(entrypoint)
-    return Markup(f'<link rel="stylesheet" href="{entry_url}" />')
+    return Markup(
+        f'<link rel="stylesheet" href="{entry_url}" {_csp_nonce()} />'
+    )
 
 
 def _script_import(entrypoint):
     entry_url = FlaskVite.instance.get_asset_url(entrypoint)
 
-    entry_script = [f'<script type="module" src="{entry_url}"></script>']
+    entry_script = [
+        f'<script type="module" src="{entry_url}" {_csp_nonce()}></script>'
+    ]
 
     # a script might import stylesheets, which are treated as a dependency
     css_urls = FlaskVite.instance.get_imported_css(entrypoint)
-    css_scripts = [f'<link rel="stylesheet" href="{c}" />' for c in css_urls]
+    css_scripts = [
+        f'<link rel="stylesheet" href="{c}" {_csp_nonce()} />'
+        for c in css_urls
+    ]
 
     # build the dependency tree of the imported script, so dependencies from
     # other modules can be fetched early, using `modulepreload` hints
     chunks_urls = FlaskVite.instance.get_imported_chunks(entrypoint)
     chunks_scripts = [
-        f'<link rel="modulepreload" href="{c}" />' for c in chunks_urls
+        f'<link rel="modulepreload" href="{c}" {_csp_nonce()} />'
+        for c in chunks_urls
     ]
 
     return Markup("".join(entry_script + chunks_scripts + css_scripts))
@@ -136,7 +154,8 @@ def _inject_vite_dev_tools(res: flask.Response):
     <!-- {EXTENSION_NAME}: start Vite dev tools -->
     <script
         type="module"
-        src="{urljoin(baseurl, "@vite/client")}">
+        src="{urljoin(baseurl, "@vite/client")}"
+        {_csp_nonce()}>
     </script>
     <!-- {EXTENSION_NAME}: end Vite dev tools -->
     """
@@ -145,7 +164,7 @@ def _inject_vite_dev_tools(res: flask.Response):
     if react:
         dev_tools += f"""
         <!-- {EXTENSION_NAME}: start React dev tools -->
-        <script type="module">
+        <script type="module" {_csp_nonce()}>
             import RefreshRuntime from "{urljoin(baseurl, "@react-refresh")}";
             RefreshRuntime.injectIntoGlobalHook(window);
             window.$RefreshReg$ = () => {{}};
