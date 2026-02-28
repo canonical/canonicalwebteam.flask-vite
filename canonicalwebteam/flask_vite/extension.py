@@ -41,6 +41,9 @@ class FlaskVite:
             "port": int(app.config.get("VITE_PORT", 5173)),
             "outdir": app.config.get("VITE_OUTDIR", "static/dist"),
             "react": bool(app.config.get("VITE_REACT", False)),
+            "manifest_path": app.config.get(
+                "VITE_MANIFEST_PATH", ".vite/manifest.json"
+            ),
         }
         is_dev = "development" == FlaskVite.config["mode"]
         ViteIntegration = DevViteIntegration if is_dev else ProdViteIntegration

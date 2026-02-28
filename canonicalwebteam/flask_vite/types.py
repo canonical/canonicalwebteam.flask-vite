@@ -6,6 +6,7 @@ class Config(TypedDict):
     port: int
     outdir: str
     react: bool
+    manifest_path: str
 
 
 class ManifestChunk(TypedDict):

@@ -2,6 +2,7 @@ MOCK_CONFIG = {
     "mode": "development",
     "port": 9999,
     "outdir": "/tmp/python_vite_test",
+    "manifest_path": ".vite/manifest.json",
 }
 
 MOCK_ASSET_PATH = "test/path/for/asset.ts"
