@@ -28,6 +28,7 @@ class TestsExtension(TestCase):
         self.app.config["VITE_MODE"] = "development"
         self.app.config["VITE_PORT"] = MOCK_CONFIG["port"]
         self.app.config["VITE_OUTDIR"] = MOCK_CONFIG["outdir"]
+        self.app.config["VITE_MANIFEST_PATH"] = MOCK_CONFIG["manifest_path"]
         FlaskVite().init_app(self.app)
 
     def test_extension_init(self):
@@ -35,6 +36,10 @@ class TestsExtension(TestCase):
         self.assertEqual(self.app.config.get("VITE_PORT"), MOCK_CONFIG["port"])
         self.assertEqual(
             self.app.config.get("VITE_OUTDIR"), MOCK_CONFIG["outdir"]
+        )
+        self.assertEqual(
+            self.app.config.get("VITE_MANIFEST_PATH"),
+            MOCK_CONFIG["manifest_path"],
         )
 
     def test_dev_tools(self):

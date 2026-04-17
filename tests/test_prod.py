@@ -19,7 +19,9 @@ from tests.mocks import (
 class TestsProdViteIntegration(TestCase):
     def setUp(self):
         # create a fake Vite output directory
-        manifest_path = Path(f'{MOCK_CONFIG["outdir"]}/.vite/manifest.json')
+        manifest_path = Path(
+            f'{MOCK_CONFIG["outdir"]}/{MOCK_CONFIG["manifest_path"]}'
+        )
         manifest_path.parent.mkdir(exist_ok=True, parents=True)
         with manifest_path.open("w+") as file:
             file.write(json.dumps(MOCK_MANIFEST))
@@ -42,15 +44,11 @@ class TestsProdViteIntegration(TestCase):
         # try to init a ProdViteIntegration instance with a bad manifest file
 
         ProdViteIntegration.manifest = None  # reset the manifest instance
-        old_manifest_name = ProdViteIntegration.BUILD_MANIFEST
-
-        ProdViteIntegration.BUILD_MANIFEST = "file/that/does/not/exist"
+        bad_config = MOCK_CONFIG.copy()
+        bad_config["manifest_path"] = "file/that/does/not/exist"
 
         with self.assertRaises(vite_exceptions.ManifestPathException):
-            self.vite = ProdViteIntegration(MOCK_CONFIG)
-
-        # reset build manifest path to previous value
-        ProdViteIntegration.BUILD_MANIFEST = old_manifest_name
+            self.vite = ProdViteIntegration(bad_config)
 
     def tests_get_asset_url__bad_asset(self):
         vite = ProdViteIntegration(MOCK_CONFIG)
@@ -113,3 +111,14 @@ class TestsProdViteIntegration(TestCase):
     def tests_get_imported_css(self):
         vite = ProdViteIntegration(MOCK_CONFIG)
         assert len(vite.get_imported_css(MOCK_ASSET_PATH)) == 1
+
+    def tests_vite_v4_manifest_load(self):
+        v4_config = MOCK_CONFIG.copy()
+        v4_config["manifest_path"] = "manifest.json"
+        v4_path = Path(f'{v4_config["outdir"]}/manifest.json')
+        with v4_path.open("w+") as f:
+            f.write(json.dumps(MOCK_MANIFEST))
+
+        ProdViteIntegration.manifest = None
+        ProdViteIntegration(v4_config)
+        self.assertIsNotNone(ProdViteIntegration.manifest)

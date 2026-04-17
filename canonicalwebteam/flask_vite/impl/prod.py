@@ -14,7 +14,6 @@ from canonicalwebteam.flask_vite.exceptions import (
 
 
 class ProdViteIntegration(_AbstractViteIntegration):
-    BUILD_MANIFEST = ".vite/manifest.json"
     # we cache the manifest contents in a static attribute
     manifest: Optional[Manifest] = None
 
@@ -25,9 +24,7 @@ class ProdViteIntegration(_AbstractViteIntegration):
             # manifest has already been parsed
             return
 
-        manifest_path = path.join(
-            self.outdir, ProdViteIntegration.BUILD_MANIFEST
-        )
+        manifest_path = path.join(self.outdir, config["manifest_path"])
         if not path.isfile(manifest_path):
             raise ManifestPathException(
                 f"{EXTENSION_NAME}: Bad path to Vite manifest"
