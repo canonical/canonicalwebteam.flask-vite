@@ -20,7 +20,7 @@ include = "canonicalwebteam"
 [tool.poetry.dependencies]
 python = "^3.10"
 flask = "^2.3"
-urllib3 = "^2.6.3"
+urllib3 = "^2.7.0"
 
 [tool.poetry.group.dev.dependencies]
 vcrpy-unittest = "^0.1.7"
