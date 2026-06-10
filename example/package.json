@@ -10,7 +10,7 @@
   "author": "canonicalwebteam",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
-    "concurrently": "^9.2.1",
+    "concurrently": "^10.0.3",
     "sass-embedded": "^1.93.2",
     "typescript": "^5.9.3",
     "vite": "^7.1.12"
