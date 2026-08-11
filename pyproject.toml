@@ -1,9 +1,9 @@
 [project]
 name = "canonicalwebteam.flask-vite"
-version = "0.5.1"
+version = "0.6.0"
 description = "A Flask extension that integrates with Vite"
 authors = [{ name = "Canonical Web Team", email = "webteam@canonical.com" }]
-license = "LGPL-3.0"
+license = "LGPL-3.0-or-later"
 readme = "README.md"
 
 [project.urls]
@@ -19,12 +19,12 @@ include = "canonicalwebteam"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-flask = "^2.3"
-urllib3 = "^2.6.3"
+flask = ">=2.3, <4.0"
+urllib3 = "^2.7.0"
 
 [tool.poetry.group.dev.dependencies]
 vcrpy-unittest = "^0.1.7"
 mypy = "^1.14.1"
 coverage = "^7.0"
-black = "^25.0.0"
+black = "^26.0.0"
 flake8 = "^7.0.0"
